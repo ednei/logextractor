@@ -11,7 +11,6 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -25,10 +24,9 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.ThisExpression;
 
+import data.DbUtils;
 import data.ElementList;
 import data.StringExprElement;
-//import utils.DbUtils;
-import utils.LogFormatter;
 
 
 /**
@@ -38,20 +36,34 @@ import utils.LogFormatter;
  */
 public class StringExprExpandVisitor extends ASTVisitor {
 	
-	private static Logger LOG = LogFormatter.getLogger(StringExprExpandVisitor.class);
+	private static Logger LOG = Logger.getLogger(StringExprExpandVisitor.class.getName());
 
 	IJavaProject javaProject;
-	CompilationUnit compilationunit;
 
-	ElementList result;
+	public ElementList result;
 
 	private StringExprElement.SCOPE scope =null;
 	private String fullName = null;
 
-	public StringExprExpandVisitor(IJavaProject javaproject, CompilationUnit compilationUnit, ElementList result) {
-		this.javaProject = javaproject;
-		this.compilationunit = compilationUnit;
+	public StringExprExpandVisitor(IJavaProject javaProject, ElementList result) {
+		this.javaProject = javaProject;
 		this.result = result;
+	}
+
+	public StringExprExpandVisitor(IJavaProject javaProject) {
+		this.javaProject = javaProject;
+	}
+
+	public StringExprExpandVisitor() {
+	}
+	
+	public void expandElementList(ASTNode node, ElementList result) {
+		this.result = result;
+		node.accept(this);
+	}
+
+	public void setJavaProject(IJavaProject javaproject) {
+		this.javaProject = javaproject;
 	}
 
 	public boolean visit(InfixExpression node) {
@@ -109,13 +121,13 @@ public class StringExprExpandVisitor extends ASTVisitor {
 			LOG.info("null node type..  ");
 			return false;
 		}
+		//LOG.info("entering handleToString");
+		
 		StringExprElement.STATUS status = StringExprElement.STATUS.ATOMIC;
 		Object value = null;
 		String rettype = nodetype.getQualifiedName();
 		
 		StringExprElement.SCOPE scope = this.scope==null? StringExprElement.SCOPE.LOCAL_VAR:this.scope;
-
-
 
 		if (nodetype.isPrimitive()) {
 			LOG.finest("PRIMITIVE");
@@ -126,9 +138,9 @@ public class StringExprExpandVisitor extends ASTVisitor {
 		} else if (nodetype.getQualifiedName().toString().equals("java.lang.String")) {
 			status = StringExprElement.STATUS.ATOMIC;
 		} else {
-			LOG.finest("find toString method for type " + nodetype.getName() );
+			LOG.info("find toString method for type " + nodetype.getName() );
 			String typeclass = nodetype.getQualifiedName();
-			LOG.finest("found type class " + typeclass);
+			LOG.info("found type class " + typeclass);
 			try {
 				IType type = javaProject.findType(typeclass);
 				if (type!=null) {
@@ -174,11 +186,8 @@ public class StringExprExpandVisitor extends ASTVisitor {
 								//LOG.info("ignore interface toString(): " + tp1.getFullyQualifiedName() );
 								continue;
 							}
-							//TODO check what is been insert on the database
-							/*
 							DbUtils.insertToStringSubClass(type.getFullyQualifiedName(), 
 									tp1.getFullyQualifiedName().toString());
-									*/
 						}
 					}
 				} else {
@@ -304,12 +313,25 @@ public class StringExprExpandVisitor extends ASTVisitor {
 	}
 
 	public boolean visit(ConditionalExpression node) {
+		/*
 		ITypeBinding type = node.resolveTypeBinding();
+		String javaType;
+		if (type == null){
+			LOG.severe("Type binding failing");
+			javaType = "";
+		}else{
+			javaType = type.getQualifiedName().toString();
+		}
+		*/
+		//TODO How do we resolve conditional expressions??Conditional means that this log call can actually generate 2 log messages templates
+		// We need to duplicate result each time we found a bifurcation, maybe the solution is modify ElementList to accept a Element List as member 
+		// and then modify toRegEx to return a list of strings .
+		node.getThenExpression().accept(this);
 
 		// do not try to further resolve this expression for now
-		this.result.list.add(new StringExprElement(type.getQualifiedName().toString(), StringExprElement.STATUS.NOTRESOLVED,
-				"(conditional)", null, StringExprElement.SCOPE.METHOD,
-				node.getStartPosition(), node.getLength()) );
+		//this.result.list.add(new StringExprElement(javaType, StringExprElement.STATUS.NOTRESOLVED,
+		//		"(conditional)", null, StringExprElement.SCOPE.METHOD,
+		//		node.getStartPosition(), node.getLength()) );
 
 		return false;
 	}
@@ -323,6 +345,5 @@ public class StringExprExpandVisitor extends ASTVisitor {
 		ITypeBinding nodetype = node.resolveTypeBinding();
 		return this.handleToString(nodetype, "(this-"+nodetype.getName()+")", node.getStartPosition(), node.getLength());
 		//return false;
-	}
-
+	}	
 }

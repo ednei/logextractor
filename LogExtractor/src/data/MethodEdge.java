@@ -7,6 +7,7 @@ import utils.LogFormatter;
 public class MethodEdge implements Comparable<MethodEdge>,Serializable{
 	
 	
+	@SuppressWarnings("unused")
 	private static Logger log = LogFormatter.getLogger(MethodEdge.class);
 	
 	private static final long serialVersionUID = 1L;
@@ -45,18 +46,13 @@ public class MethodEdge implements Comparable<MethodEdge>,Serializable{
 	public int writeToDB() {
 		caller.writeToDB();
 		callee.writeToDB();
-		log.info("Caller on DB:"+ caller.toString());
-		log.info("Callee on DB:"+ callee.toString());
-		//int callerid = this.caller.findMethodAutoId();
-		//int calleeid = this.callee.findMethodAutoId();
-		
-		//LOG.info("inserting edge.. " + callerid +";"+calleeid+";"+linenumber);
-		//return DbUtils.insertMethodEdge(callerid, calleeid, this.linenumber, this.inloop);
-		return 0;
+		//log.info("Caller on DB:"+ caller.toString());
+		//log.info("Callee on DB:"+ callee.toString());
+		int callerid = this.caller.findMethodAutoId();
+		int calleeid = this.callee.findMethodAutoId();
+		//log.info("inserting edge.. " + callerid +";"+calleeid+";" + linenumber);
+		return DbUtils.insertMethodEdge(callerid, calleeid, this.linenumber, this.inloop);
 	}
-	
-	public void readFromDb() {
-		
-	}
-
+	/*public void readFromDb() {
+	}*/
 }

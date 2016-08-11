@@ -14,37 +14,6 @@ public class Utils {
 	
 	//private static Logger log = LogFormatter.getLogger(Utils.class);
 	
-	/*TODO log level translation between log framework should be treat on specific layer.
-	private static HashMap<String, String> levelTranslate = new HashMap<String, String>();
-	static {
-		levelTranslate.put("trace", "finer");
-		levelTranslate.put("debug", "fine");
-		levelTranslate.put("info", "info");
-		levelTranslate.put("warn", "warning");
-		levelTranslate.put("error", "severe");
-		levelTranslate.put("fatal", "severe");
-	}
-	
-	public static int getLevel(String levelname) {
-			
-		if ( ConfUtil.getConfig().getString("parsing.loggerFramework").equals("log4j")) {
-			// it is a apache logging log level format
-			levelname = levelTranslate.get(levelname);
-		}
-		if (levelname==null) {
-			levelname = "severe";  // make sure the message get handled,, if we don't know the level name
-		}
-		Level t;
-		try {
-			t = Level.parse(levelname.toUpperCase());
-		} catch (IllegalArgumentException e) {
-			LOG.warning("UNRESOLVED LOG LEVEL " + levelname);
-			return 600;
-		} 
-		return t.intValue();
-	}*/
-	
-	
 	public static String safeResolveType(IJavaProject javaproject, ITypeBinding typebinding) {
 		try {
 

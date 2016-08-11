@@ -19,8 +19,6 @@ public class Main implements IApplication{
 
 	@Override
 	public void stop() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

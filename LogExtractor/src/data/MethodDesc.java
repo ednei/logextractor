@@ -10,6 +10,7 @@ public class MethodDesc implements Serializable, Comparable<MethodDesc>{
 	public String params;
 	public String returntype;
 	//private static Logger log = Logger.getLogger(MethodEdge.class.getName());
+	private int dbRecId = -1;
 	
 	public MethodDesc(String methodclass, String methodname, String params,
 			String returntype, int dbRecId) {
@@ -51,18 +52,13 @@ public class MethodDesc implements Serializable, Comparable<MethodDesc>{
 	
 	public void writeToDB() {
 		//log.info("Saving on DB:"+toString());
-		//TODO 	
-		//DbUtils.insertMethod(methodclass, methodname, params, returntype);
+		DbUtils.insertMethod(methodclass, methodname, params, returntype);
 	}
 	
 	public int findMethodAutoId() {
-		//TODO 
-		//if (this.dbRecId!=-1) {
-		//	return this.dbRecId;
-		//}
-		//this.dbRecId = DbUtils.findMethodId(methodclass, methodname, params);
-		//return this.dbRecId;
-		return 0;
+		if (this.dbRecId==-1) {
+			this.dbRecId = DbUtils.findMethodId(methodclass, methodname, params);
+		}
+		return this.dbRecId;
 	}
-	
 }

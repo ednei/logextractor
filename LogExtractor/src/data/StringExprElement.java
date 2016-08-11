@@ -34,6 +34,20 @@ public class StringExprElement implements Serializable {
 		this.len = len;
 	}
 
+	public StringExprElement(StringExprElement origin) {
+		subclassvalues = new ArrayList<Object>();
+		for(Object o : origin.subclassvalues){
+			subclassvalues.add(o);
+		}
+		javaType = origin.javaType;
+		status = origin.status;
+		name = origin.name;
+		value = origin.value;
+		scope = origin.scope;
+		pos = origin.pos;
+		len = origin.len;
+	}
+
 	public String toString() {
 		String namestr = name==null?"(literal)":name;
 		String ret = status +" " +namestr +" " + javaType  + " "
@@ -91,6 +105,10 @@ public class StringExprElement implements Serializable {
 			return "";
 		}
 		return this.javaType;
+	}
+
+	public boolean hasName(String paramName) {
+		return name != null && name.equals(paramName);
 	}
 	
 }

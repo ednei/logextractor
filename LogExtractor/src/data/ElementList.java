@@ -24,7 +24,7 @@ public class ElementList implements Serializable{
 		this.fileName = filename;
 		this.line = line;
 	}
-
+	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(this.fileName).append(":").append(line).append("::\n");
@@ -85,6 +85,5 @@ public class ElementList implements Serializable{
 			sb.append(mapstr).append(";");
 		}
 		return sb.toString();
-	}
-
+	}	
 }

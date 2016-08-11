@@ -6,58 +6,24 @@ import java.util.logging.Logger;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.dom.*;
 
+import data.DbUtils;
 import data.MethodDesc;
 import data.MethodEdge;
 
 public class MethodCallDetectorVisitor extends ASTVisitor {
-
 	private static Logger log = Logger.getLogger(MethodCallDetectorVisitor.class.getName());
-
-	IJavaProject javaproject;
-
-	//Set<MethodEdge> invokemap;
 	
+	IJavaProject javaproject;
 	String compilationUnitName;
 	CompilationUnit compilationunit;
+	int inloop = 0;
 	
-
 	public MethodCallDetectorVisitor(IJavaProject javaproj, CompilationUnit compilationunit, String compliationUnitName) {
 		this.javaproject = javaproj;
 		//this.invokemap = new TreeSet<MethodEdge>();
 		this.compilationunit = compilationunit;
 		this.compilationUnitName = compliationUnitName;
 	}
-	
-	
-	int inloop = 0;
-	
-	public boolean visit(ForStatement node) {
-		inloop+=1;
-		return true;
-	}
-	
-	public boolean visit(WhileStatement node) {
-		inloop+=1;
-		return true;
-	}
-	
-	public boolean visit(DoStatement node) {
-		inloop+=1;
-		return true;
-	}
-	
-	public void endVisit(ForStatement node) {
-		inloop-=1;
-	}
-	
-	public void endVisit(WhileStatement node) {
-		inloop-=1;
-	}
-	
-	public void endVisit(DoStatement node) {
-		inloop-=1;
-	}
-	
 	
 	public boolean visit(ClassInstanceCreation node) {
 		//log.info("CONSTRUCTOR CALL: " + node);
@@ -103,6 +69,7 @@ public class MethodCallDetectorVisitor extends ASTVisitor {
 	}
 	
 	private boolean processMethod(ASTNode node, IMethodBinding calleeMethodBinding) {
+		int edgeid = -1;
 		
 		if (calleeMethodBinding==null) {
 			//log.severe("cannot resolve callee method binding ");
@@ -163,16 +130,7 @@ public class MethodCallDetectorVisitor extends ASTVisitor {
 				
 		try {
 			MethodEdge edge = new MethodEdge(caller, callee, line, inloop>0);
-			edge.writeToDB();
-					
-			//int edgeid = edge.writeToDB();
-			/*
-			if (invokemap.contains(edge)) {
-				;
-			} else {
-				invokemap.add(edge);
-			}
-			*/
+			edgeid = edge.writeToDB();
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -201,12 +159,12 @@ public class MethodCallDetectorVisitor extends ASTVisitor {
 							if (logstart <= node
 									.getStartPosition()) {
 								if (log.isLoggable(Level.FINER)) log.finer("PRE::" + logcall +" Line:" + logline);
-								//DbUtils.insertPreLog(compilationUnitName+"-"+logline,
-								//		edgeid);
+								DbUtils.insertPreLog(compilationUnitName+"-"+logline,
+										edgeid);
 							} else {
 								log.finer("POST::" + logcall +" Line:" + logline);
-								//if (log.isLoggable(Level.FINER)) DbUtils.insertPostLog(compilationUnitName+"-"+logline,
-								//		edgeid);
+								if (log.isLoggable(Level.FINER)) DbUtils.insertPostLog(compilationUnitName+"-"+logline,
+										edgeid);
 							}
 						}
 					}
@@ -236,7 +194,31 @@ public class MethodCallDetectorVisitor extends ASTVisitor {
 			return findInvoker(p);
 		}
 	}
-
-
-
+	
+	public boolean visit(ForStatement node) {
+		inloop+=1;
+		return true;
+	}
+	
+	public boolean visit(WhileStatement node) {
+		inloop+=1;
+		return true;
+	}
+	
+	public boolean visit(DoStatement node) {
+		inloop+=1;
+		return true;
+	}
+	
+	public void endVisit(ForStatement node) {
+		inloop-=1;
+	}
+	
+	public void endVisit(WhileStatement node) {
+		inloop-=1;
+	}
+	
+	public void endVisit(DoStatement node) {
+		inloop-=1;
+	}
 }

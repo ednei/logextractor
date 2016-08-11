@@ -10,24 +10,21 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-
-import utils.LogFormatter;
-
 import data.ElementList;
 
 public class ToStringMethodVisitor extends ASTVisitor {
 	
 	@SuppressWarnings("unused")
-	private static Logger LOG = LogFormatter.getLogger(ToStringMethodVisitor.class);
+	private static Logger LOG = Logger.getLogger(ToStringMethodVisitor.class.getName());
 	
-	IJavaProject javaproject;
+	IJavaProject javaProject;
 	CompilationUnit compilationunit;
 	String compilationUnitName;
 	ElementList result;
 
 	public ToStringMethodVisitor(IJavaProject javaproj, CompilationUnit compilationunit,
 			String compilationUnitName) {
-		this.javaproject = javaproj;
+		this.javaProject = javaproj;
 		this.compilationunit = compilationunit;
 		this.compilationUnitName = compilationUnitName;
 	}
@@ -56,8 +53,7 @@ public class ToStringMethodVisitor extends ASTVisitor {
 				ElementList resultlist = new ElementList(this.compilationUnitName,
 						this.compilationunit.getLineNumber(node.getStartPosition()));
 				StringExprExpandVisitor visitor =
-					new StringExprExpandVisitor(this.javaproject,
-							this.compilationunit, resultlist);
+					new StringExprExpandVisitor(this.javaProject, resultlist);
 				( (ReturnStatement)s ).getExpression().accept(visitor);
 				if (this.result!=null) {
 					// more complex than a single return statement

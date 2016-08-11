@@ -17,14 +17,13 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
+import data.DbUtils;
 import data.ElementList;
 
-//import utils.DbUtils;
-import utils.LogFormatter;
 
 public class ToStringParser {
 	
-	private static Logger LOG = LogFormatter.getLogger(ToStringParser.class);
+	private static Logger LOG = Logger.getLogger(ToStringParser.class.getName());
 	
 	public static final int UNPARSED =0;
 	public static final int PARSED_SUCCESSFUL =1;
@@ -161,25 +160,22 @@ public class ToStringParser {
 			}
 			
 			if (tp==null) {
-				//TODO check what is been insert on the database
 				// no super class has a visible toStringMethod
-				/*for (IType t: superlist) {
+				for (IType t: superlist) {
 					DbUtils.insertToStringRec(t.getFullyQualifiedName(), new ElementList(), PARSE_FAILED);
-				}*/
+				}
 				return false;
 			}
 			ElementList ret = parseOne(tp);
 			if (ret == null) {
-				//TODO check what is been insert on the database
-				/*for (IType t: superlist) {
+				for (IType t: superlist) {
 					DbUtils.insertToStringRec(t.getFullyQualifiedName(), new ElementList(), PARSE_FAILED);
-				}*/
+				}
 				return false;
 			} else if (ret.status!=ElementList.DUPLICATE){
-				//TODO check what is been insert on the database
-				/*for (IType t: superlist) {
+				for (IType t: superlist) {
 					DbUtils.insertToStringRec(t.getFullyQualifiedName(), ret, PARSED_SUCCESSFUL);
-				}*/
+				}
 				return true;
 			} else {
 				return true;
